@@ -1,55 +1,106 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gantt Charts (CSV)</title>
-    <script src="https://www.gstatic.com/charts/loader.js" type="text/javascript"></script>
-    <style>
-      body { font-family: Arial, Helvetica, sans-serif; padding: 12px }
-      #controls { margin-bottom: 12px }
-      #chart_div { width: 100%; max-height: 750px }
-    </style>
-  </head>
-  <body>
-    <div id="controls">
-      <label>Import CSV: <input id="importFile" type="file" accept=".csv"/></label>
-    </div>
+<head>
+  <meta charset="utf-8">
+  <title>Gantt Chart</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    table { border-collapse: collapse; margin: 12px 0; }
+    th, td { padding: 4px 8px; border: 1px solid #ddd; }
+    input { width: 100%; box-sizing: border-box; }
+    button { margin: 4px; }
+  </style>
+</head>
+<body>
+  <input type="file" id="import" accept=".csv">
+  <div id="chart" style="max-height:600px"></div>
+  <button onclick="add()">Add row</button>
+  <button onclick="exp()">Export</button>
+  <table id="tbl">
+    <tr><th>ID<th>Name<th>Category<th>Start<th>End<th>Duration<th>%<th>Deps<th>
+  </table>
 
-    <div id="chart_div"></div>
+  <script>
+    let chart, ready = false;
+    
+    window.onload = () => {
+      google.charts.load('current', {packages: ['gantt']});
+      google.charts.setOnLoadCallback(() => {
+        chart = new google.visualization.Gantt(document.getElementById('chart'));
+        ready = true;
+      });
+    };
 
-    <section id="editor">
-      <h3>Chart Editor</h3>
-      <div style="margin-bottom:8px">
-        <button id="addRowBtn">Add Row</button>
-        <button id="clearRowsBtn">Clear Rows</button>
-        <button id="renderBtn">Render Chart</button>
-        <button id="resetBtn">Reset Chart</button>
-        <button id="exportBtn">Export CSV</button>
-      </div>
+    function draw() {
+      if (!ready) return;
+      const rows = [...document.querySelectorAll('#tbl tr:not(:first-child)')];
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'ID');
+      data.addColumn('string', 'Name');
+      data.addColumn('string', 'Resource');
+      data.addColumn('date', 'Start');
+      data.addColumn('date', 'End');
+      data.addColumn('number', 'Duration');
+      data.addColumn('number', 'Percent');
+      data.addColumn('string', 'Dependencies');
+      
+      data.addRows(rows.map(r => {
+        const c = r.cells;
+        return [
+          c[0].children[0].value,
+          c[1].children[0].value || c[0].children[0].value,
+          c[2].children[0].value || null,
+          new Date(c[3].children[0].value),
+          new Date(c[4].children[0].value),
+          +c[5].children[0].value || 0,
+          +c[6].children[0].value || 0,
+          c[7].children[0].value || null
+        ];
+      }));
+      
+      chart.draw(data, {height: 600});
+    }
 
-      <div id="tableContainer" style="overflow:auto; max-height:280px; border:1px solid #ddd; padding:6px">
-        <table id="dataTable" border="0" cellpadding="4" cellspacing="0">
-          <thead>
-            <tr>
-              <th>Task ID</th>
-              <th>Task Name</th>
-              <th>Resource</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Duration (days)</th>
-              <th>Percent</th>
-              <th>Dependencies</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    function add(v = {}) {
+      const tr = document.getElementById('tbl').insertRow();
+      ['id','name','resource','start','end','duration','percent','deps'].forEach(k => {
+        const td = tr.insertCell();
+        const inp = document.createElement('input');
+        inp.type = k.includes('start') || k.includes('end') ? 'date' : (k.includes('percent') ? 'number' : 'text');
+        inp.value = v[k] || '';
+        inp.oninput = draw;
+        td.appendChild(inp);
+      });
+      const btn = document.createElement('button');
+      btn.textContent = '×';
+      btn.onclick = () => { tr.remove(); draw(); };
+      tr.insertCell().appendChild(btn);
+    }
 
-    <script src="./chart.js" type="module"></script>
-    <datalist id="taskIdList"></datalist>
-  </body>
+    document.getElementById('import').onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      file.text().then(text => {
+        document.querySelectorAll('#tbl tr:not(:first-child)').forEach(r => r.remove());
+        text.split('\n').slice(1).forEach(line => {
+          const [id, name, resource, start, end, duration, percent, deps] = line.split(',').map(s => s.trim());
+          if (id) add({id, name, resource, start, end, duration, percent, deps});
+        });
+        draw();
+      });
+    };
+
+    function exp() {
+      const rows = [...document.querySelectorAll('#tbl tr:not(:first-child)')];
+      const csv = 'id,name,resource,start,end,duration,percent,deps\n' + rows.map(r => 
+        [...r.querySelectorAll('input')].map(i => i.value).join(',')
+      ).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv]));
+      a.download = 'gantt.csv';
+      a.click();
+    }
+  </script>
+</body>
 </html>
