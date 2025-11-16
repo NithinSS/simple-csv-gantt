@@ -84,7 +84,15 @@
       file.text().then(text => {
         document.querySelectorAll('#tbl tr:not(:first-child)').forEach(r => r.remove());
         text.split('\n').slice(1).forEach(line => {
-          const [id, name, resource, start, end, duration, percent, deps] = line.split(',').map(s => s.trim());
+          const parts = [];
+          let current = '', inQuotes = false;
+          for (let char of line) {
+            if (char === '"') inQuotes = !inQuotes;
+            else if (char === ',' && !inQuotes) { parts.push(current.trim()); current = ''; }
+            else current += char;
+          }
+          parts.push(current.trim());
+          const [id, name, resource, start, end, duration, percent, deps] = parts;
           if (id) add({id, name, resource, start, end, duration, percent, deps});
         });
         draw();
@@ -94,7 +102,10 @@
     function exp() {
       const rows = [...document.querySelectorAll('#tbl tr:not(:first-child)')];
       const csv = 'id,name,resource,start,end,duration,percent,deps\n' + rows.map(r => 
-        [...r.querySelectorAll('input')].map(i => i.value).join(',')
+        [...r.querySelectorAll('input')].map(i => {
+          const v = i.value;
+          return v.includes(',') ? `"${v}"` : v;
+        }).join(',')
       ).join('\n');
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([csv]));
