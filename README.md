@@ -53,7 +53,8 @@ Want a clean chart for presentations or screenshots?
 1. Open browser DevTools (F12)
 2. Find <body class="show-control">
 3. Change to <body class="hide-control">
-4. Take screenshot (no buttons, no clutter)
+4. The title is an editable input field, edit in place to whatever name you want.
+5. Take screenshot (no buttons, no clutter)
 
 ### Why no "Export as Image" button?
 Following suckless philosophy: your OS already has screenshot tools (Win+Shift+S, Cmd+Shift+4, Print Screen). Why add 50+ lines of canvas rendering code when you can press two keys?

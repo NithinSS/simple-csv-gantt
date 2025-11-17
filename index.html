@@ -18,7 +18,7 @@
     .btn:hover { scale: 102%; }
     .choose-file-btn { background-color: white; border: 1px solid #ddd; display: flex; align-items: center; gap: 8px; }
     .file-name-display { font-weight: normal; background-color: transparent; padding: 0; border-radius: 0; color: #666; }
-    #csvSection { position: fixed; bottom: 0; display: flex; flex-direction: column-reverse; align-items: self-start; overflow-y: auto; max-height: 70%; }
+    #csvSection { position: fixed; bottom: 0; display: flex; flex-direction: column-reverse; align-items: self-start; overflow: auto; max-height: 70%; }
     details#csvSection > summary::before { content: 'Show CSV'; }
     details#csvSection[open] > summary::before { content: 'Hide CSV'; }
     details#csvSection[open] { background-color: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
