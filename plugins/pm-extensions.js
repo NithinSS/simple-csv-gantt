@@ -126,14 +126,15 @@
     if (!svg || !rows.length) return;
     decorating = true;
 
+    const orderedRows = renderedOrderOf(svg, rows);
     const trackHeight = trackHeightOf(svg, rows.length);
     svg.querySelectorAll('line.deadline-marker').forEach(l => l.remove());
     const bars = barsOf(svg);
     const progress = progressOverlaysOf(svg);
 
-    rows.forEach((row, i) => {
+    orderedRows.forEach((row, i) => {
       const bar = bars[i];
-      if (!bar) return;
+      if (!row || !bar) return;
       resizeBar(svg, bar, progress[i], valueAt(row, 'size'), trackHeight);
       outlineRisk(bar, valueAt(row, 'risk'));
       markDeadline(svg, bar, row, i, trackHeight, valueAt(row, 'deadline'));
@@ -144,6 +145,27 @@
     // point, so deferring the reset (rather than clearing it before we
     // return) lets it still see `true`.
     Promise.resolve().then(() => { decorating = false; });
+  }
+
+  // Google sorts rendered rows (bars and their labels together) by date, so
+  // table order and render order agree only by coincidence. Each row's label
+  // is its displayed name -- the same string core puts there (`name || id`)
+  // -- and labels are reordered right alongside the bars they belong to, so
+  // reading them back in render order recovers which row is which.
+  function renderedOrderOf(svg, rows) {
+    const labels = rowLabelsOf(svg, rows.length);
+    if (!labels) return rows;
+    const unclaimed = [...rows];
+    return labels.map(label => {
+      const i = unclaimed.findIndex(r => (valueAt(r, 'name') || valueAt(r, 'id')) === label);
+      return i === -1 ? null : unclaimed.splice(i, 1)[0];
+    });
+  }
+
+  function rowLabelsOf(svg, rowCount) {
+    const group = [...svg.querySelectorAll('g')]
+      .find(g => g.children.length === rowCount && [...g.children].every(c => c.tagName === 'text'));
+    return group && [...group.children].map(t => t.textContent);
   }
 
   function resizeBar(svg, bar, progress, size, trackHeight) {
