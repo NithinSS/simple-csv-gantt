@@ -8,10 +8,13 @@ const THEME = {
     barCornerRadius: 10,
     shadowEnabled: true,
     palette: [
-        { color: '#717D9D', dark: '#444F6C', light: '#717D9D' },
-        { color: '#B5CCDA', dark: '#8AB4CD', light: '#B5CCDA' },
-        { color: '#ECCAC8', dark: '#E3B1B3', light: '#ECCAC8' },
-        { color: '#C8D7DE', dark: '#9AA7AC', light: '#C8D7DE' },
+        { color: '#99A0BA', dark: '#7881A3', light: '#99A0BA' }, // slate blue
+        { color: '#B5CCDA', dark: '#8AB4CD', light: '#B5CCDA' }, // sky blue
+        { color: '#ECCAC8', dark: '#E3B1B3', light: '#ECCAC8' }, // blush pink
+        { color: '#C8D7DE', dark: '#9AA7AC', light: '#C8D7DE' }, // pale blue-grey
+        { color: '#E0B35C', dark: '#C98A2D', light: '#E0B35C' }, // amber
+        { color: '#6FCF97', dark: '#2FA37A', light: '#6FCF97' }, // teal green
+        { color: '#C9A0DC', dark: '#AD6ECF', light: '#C9A0DC' }, // plum
     ],
     arrow: {
         width: 3,
