@@ -19,7 +19,7 @@ const THEME = {
         { color: '#1F6F78', dark: '#134850', light: '#1F6F78' }, // teal
         { color: '#6B3F8C', dark: '#4A2A61', light: '#6B3F8C' }, // plum
         { color: '#8A5A1E', dark: '#5E3C12', light: '#8A5A1E' }, // bronze
-        { color: '#3C4552', dark: '#272D36', light: '#3C4552' }, // charcoal
+        { color: '#4A4A4A', dark: '#2E2E2E', light: '#4A4A4A' }, // neutral grey
     ],
     arrow: {
         width: 3,
